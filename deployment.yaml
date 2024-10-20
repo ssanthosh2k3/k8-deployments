@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: java-task
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: java-task
+  template:
+    metadata:
+      labels:
+        app: java-task
+    spec:
+      containers:
+      - name: java-task
+        image: santhoshadmin/java-task:latest  # Always use the latest tag
+        imagePullPolicy: Always  # Ensures the latest image is pulled
+        ports:
+        - containerPort: 8080

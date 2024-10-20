@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+
+    environment {
+        KUBECONFIG = credentials('k8s-kubeconfig') // Jenkins secret containing the kubeconfig file
+        IMAGE_NAME = 'santhoshadmin/java-task' // Docker image name
+        DEPLOYMENT_NAME = 'java-task' // Kubernetes deployment name
+    }
+
+    stages {
+        stage('Pull Docker Image') {
+            steps {
+                script {
+                    sh """
+                    echo 'Pulling the latest Docker image...'
+                    docker pull ${IMAGE_NAME}:latest
+                    """
+                }
+            }
+        }
+
+        stage('Update Kubernetes Deployment') {
+            steps {
+                script {
+                    sh """
+                    echo 'Updating Kubernetes deployment...'
+                    kubectl set image deployment/${DEPLOYMENT_NAME} ${DEPLOYMENT_NAME}=${IMAGE_NAME}:latest
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs() // Clean workspace after the job is complete
+        }
+    }
+}

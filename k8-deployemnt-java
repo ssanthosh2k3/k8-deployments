@@ -13,8 +13,14 @@ pipeline {
                 script {
                     echo 'Updating Kubernetes deployment...'
                     sh """
+                    # Set the new image for the deployment
                     kubectl set image deployment/${DEPLOYMENT_NAME} ${DEPLOYMENT_NAME}=${IMAGE_NAME}:latest
+                    
+                    # Wait for the rollout to complete
                     kubectl rollout status deployment/${DEPLOYMENT_NAME}
+                    
+                    # Restart the deployment to ensure all pods use the latest image
+                    kubectl rollout restart deployment/${DEPLOYMENT_NAME}
                     """
                 }
             }

@@ -8,23 +8,13 @@ pipeline {
     }
 
     stages {
-        stage('Pull Docker Image') {
-            steps {
-                script {
-                    sh """
-                    echo 'Pulling the latest Docker image...'
-                    docker pull ${IMAGE_NAME}:latest
-                    """
-                }
-            }
-        }
-
         stage('Update Kubernetes Deployment') {
             steps {
                 script {
-                    sh """
                     echo 'Updating Kubernetes deployment...'
+                    sh """
                     kubectl set image deployment/${DEPLOYMENT_NAME} ${DEPLOYMENT_NAME}=${IMAGE_NAME}:latest
+                    kubectl rollout status deployment/${DEPLOYMENT_NAME}
                     """
                 }
             }
@@ -34,6 +24,9 @@ pipeline {
     post {
         always {
             cleanWs() // Clean workspace after the job is complete
+        }
+        failure {
+            echo 'Deployment failed. Please check the logs and deployment configuration.'
         }
     }
 }
